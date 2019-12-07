@@ -1,0 +1,13 @@
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/BlockComments:
+  Exclude:
+    - 'spec/spec_helper.rb'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/*'
+
+Layout/IndentationConsistency:
+  EnforcedStyle: indented_internal_methods
