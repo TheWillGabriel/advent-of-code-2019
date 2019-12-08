@@ -1,6 +1,5 @@
 def run_intcode(memory)
   intcode = memory.dup
-  p intcode
   opcode_address = 0
 
   while opcode_address + 1 < intcode.length && intcode[opcode_address] != 99
@@ -17,13 +16,30 @@ def run_intcode(memory)
     opcode_address += 4
   end
 
-  p intcode
   intcode
 end
 
-memory = File.read('input.txt').split(',').map(&:to_i)
-memory[1] = 12
-memory[2] = 2
-memory = run_intcode(memory)
+def find_input(memory, output)
+  success = false
+  new_memory = []
 
-puts memory[0]
+  100.times do |noun|
+    100.times do |verb|
+      new_memory = memory.dup
+      new_memory[1] = noun
+      new_memory[2] = verb
+
+      success = true if run_intcode(new_memory)[0] == output
+      break if success
+    end
+    break if success
+  end
+
+  100 * new_memory[1] + new_memory[2]
+end
+
+memory = File.read('input.txt').split(',').map(&:to_i)
+
+input = find_input(memory, 19_690_720)
+
+puts input
