@@ -1,28 +1,29 @@
-def run_intcode(input)
-  intcode = input.dup
-  opcode_index = 0
+def run_intcode(memory)
+  intcode = memory.dup
+  p intcode
+  opcode_address = 0
 
-  while opcode_index + 1 < intcode.length && intcode[opcode_index] != 99
-    index1 = intcode[opcode_index + 1]
-    index2 = intcode[opcode_index + 2]
-    index3 = intcode[opcode_index + 3]
+  while opcode_address + 1 < intcode.length && intcode[opcode_address] != 99
+    address1 = intcode[opcode_address + 1]
+    address2 = intcode[opcode_address + 2]
+    result_address = intcode[opcode_address + 3]
 
-    if intcode[opcode_index] == 1
-      intcode[index3] = intcode[index1] + intcode[index2]
-    elsif intcode[opcode_index] == 2
-      intcode[index3] = intcode[index1] * intcode[index2]
-    end
+    intcode[result_address] = if intcode[opcode_address] == 1
+                                intcode[address1] + intcode[address2]
+                              elsif intcode[opcode_address] == 2
+                                intcode[address1] * intcode[address2]
+                              end
 
-    opcode_index += 4
+    opcode_address += 4
   end
 
+  p intcode
   intcode
 end
 
-intcode_array = File.read('input.txt').split(',').map(&:to_i)
-intcode_array[1] = 12
-intcode_array[2] = 2
-result = run_intcode(intcode_array)
+memory = File.read('input.txt').split(',').map(&:to_i)
+memory[1] = 12
+memory[2] = 2
+memory = run_intcode(memory)
 
-p intcode_array
-p result
+puts memory[0]
