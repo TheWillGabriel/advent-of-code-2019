@@ -22,7 +22,9 @@ def run_intcode(memory)
                arguments: [argument1, argument2, argument3])
       pointer += 4
     elsif opcode == 3
-      intcode[argument1] = fetch_input
+      fetch_input(intcode: intcode,
+                  mode: mode1,
+                  argument: pointer + 1)
       pointer += 2
     elsif opcode == 4
       send_output(intcode: intcode,
