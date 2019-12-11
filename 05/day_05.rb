@@ -87,18 +87,21 @@ def send_output(intcode:, mode:, argument:)
   puts "Diagnostic code: #{value}"
 end
 
+# Returns the new pointer index
 def jump_if_true(intcode:, pointer:, modes:, arguments:)
   jump = modes[0] == 1 ? !arguments[0].zero? : !intcode[arguments[0]].zero?
   address = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
   jump ? address : pointer + 3
 end
 
+# Returns the new pointer index
 def jump_if_false(intcode:, pointer:, modes:, arguments:)
   jump = modes[0] == 1 ? arguments[0].zero? : intcode[arguments[0]].zero?
   address = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
   jump ? address : pointer + 3
 end
 
+# Result will always be in position mode
 def less_than(intcode:, modes:, arguments:)
   term1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
   term2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
@@ -107,6 +110,7 @@ def less_than(intcode:, modes:, arguments:)
   intcode[result_address] = term1 < term2 ? 1 : 0
 end
 
+# Result will always be in position mode
 def equals(intcode:, modes:, arguments:)
   term1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
   term2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
