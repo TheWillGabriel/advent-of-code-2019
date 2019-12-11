@@ -35,6 +35,13 @@ def run_intcode(memory)
   intcode
   end
 
+# Sum parameter will always be in position mode
+def add(intcode:, modes:, arguments:)
+  addend1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
+  addend2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
+  sum_index = arguments[2]
+  intcode[sum_index] = addend1 + addend2
+
   intcode
 end
 
