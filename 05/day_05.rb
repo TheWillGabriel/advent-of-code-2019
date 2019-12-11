@@ -3,24 +3,36 @@ def run_intcode(memory)
   opcode_address = 0
 
   while opcode_address + 1 < intcode.length && intcode[opcode_address] != 99
-    opcode = intcode[opcode_address]
-    address1 = intcode[opcode_address + 1]
-    address2 = intcode[opcode_address + 2]
-    result_address = intcode[opcode_address + 3]
+    opcode = intcode[opcode_address] % 100
+    mode1 = intcode[opcode_address] / 100 % 10
+    mode2 = intcode[opcode_address] / 1000 % 10
+    mode3 = intcode[opcode_address] / 10_000 % 10
+    argument1 = opcode_address + 1
+    argument2 = opcode_address + 2
+    argument3 = opcode_address + 3
 
     if opcode == 1
-      intcode[result_address] = intcode[address1] + intcode[address2]
+      intcode = add(intcode: intcode,
+                    modes: [mode1, mode2],
+                    arguments: [argument1, argument2, argument3])
       opcode_address += 4
     elsif opcode == 2
-      intcode[result_address] = intcode[address1] * intcode[address2]
+      intcode = multiply(intcode: intcode,
+                         modes: [mode1, mode2],
+                         arguments: [argument1, argument2, argument3])
       opcode_address += 4
     elsif opcode == 3
       intcode[address1] = fetch_input
       opcode_address += 2
     elsif opcode == 4
-      send_output(intcode[address1])
-      opcode_address
+      send_output(intcode: intcode,
+                  mode: mode1,
+                  argument: argument1)
+      opcode_address += 2
     end
+    end
+
+  intcode
   end
 
   intcode
