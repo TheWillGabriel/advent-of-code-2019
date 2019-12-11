@@ -60,8 +60,9 @@ def fetch_input
   gets.chomp
 end
 
-def send_output(value)
-  puts value
+def send_output(intcode:, mode:, argument:)
+  value = mode == 1 ? argument : intcode[argument]
+  puts "Deviance from expected value: #{value}"
 end
 
 # Finds which noun and verb will produce given output with given memory state
