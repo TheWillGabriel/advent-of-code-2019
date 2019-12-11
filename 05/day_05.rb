@@ -34,12 +34,12 @@ def run_intcode(memory)
     elsif opcode == 5
       pointer = jump_if_true(intcode: intcode,
                              pointer: pointer,
-                             mode: mode1,
+                             modes: [mode1, mode2],
                              arguments: [argument1, argument2])
     elsif opcode == 6
       pointer = jump_if_false(intcode: intcode,
                               pointer: pointer,
-                              mode: mode1,
+                              modes: [mode1, mode2],
                               arguments: [argument1, argument2])
     elsif opcode == 7
       less_than(intcode: intcode,
@@ -73,27 +73,27 @@ def multiply(intcode:, modes:, arguments:)
   intcode[product_address] = factor1 * factor2
 end
 
-def fetch_input
+def fetch_input(intcode:, mode:, argument:)
   puts 'Enter the ID of the system to test'
-  gets.chomp.to_i
+  destination_address = mode == 1 ? argument : intcode[argument]
+
+  intcode[destination_address] = gets.chomp.to_i
 end
 
 def send_output(intcode:, mode:, argument:)
   value = mode == 1 ? argument : intcode[argument]
-  puts "Deviance from expected value: #{value}"
+  puts "Diagnostic code: #{value}"
 end
 
-def jump_if_true(intcode:, pointer:, mode:, arguments:)
-  jump = !arguments[0].zero?
-  address = mode == 1 ? arguments[1] : intcode[arguments[1]]
-
+def jump_if_true(intcode:, pointer:, modes:, arguments:)
+  jump = modes[0] == 1 ? !arguments[0].zero? : !intcode[arguments[0]].zero?
+  address = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
   jump ? address : pointer + 3
 end
 
-def jump_if_false(intcode:, pointer:, mode:, arguments:)
-  jump = arguments[0].zero?
-  address = mode == 1 ? arguments[1] : intcode[arguments[1]]
-
+def jump_if_false(intcode:, pointer:, modes:, arguments:)
+  jump = modes[0] == 1 ? arguments[0].zero? : intcode[arguments[0]].zero?
+  address = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
   jump ? address : pointer + 3
 end
 
