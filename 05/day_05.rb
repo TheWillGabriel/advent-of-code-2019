@@ -34,6 +34,11 @@ def run_intcode(memory)
                              pointer: pointer,
                              mode: mode1,
                              arguments: [argument1, argument2])
+    elsif opcode == 6
+      pointer = jump_if_false(intcode: intcode,
+                              pointer: pointer,
+                              mode: mode1,
+                              arguments: [argument1, argument2])
     end
   end
 
@@ -68,6 +73,12 @@ end
 
 def jump_if_true(intcode:, pointer:, mode:, arguments:)
   jump = !arguments[0].zero?
+  address = mode == 1 ? arguments[1] : intcode[arguments[1]]
+  jump ? address : pointer + 3
+end
+
+def jump_if_false(intcode:, pointer:, mode:, arguments:)
+  jump = arguments[0].zero?
   address = mode == 1 ? arguments[1] : intcode[arguments[1]]
   jump ? address : pointer + 3
 end
