@@ -43,11 +43,11 @@ def run_intcode(memory)
                               arguments: [argument1, argument2])
     elsif opcode == 7
       less_than(intcode: intcode,
-                modes: [mode1, mode2, mode3],
+                modes: [mode1, mode2],
                 arguments: [argument1, argument2, argument3])
     elsif opcode == 8
       equals(intcode: intcode,
-             modes: [mode1, mode2, mode3],
+             modes: [mode1, mode2],
              arguments: [argument1, argument2, argument3])
     end
   end
@@ -100,17 +100,17 @@ end
 def less_than(intcode:, modes:, arguments:)
   term1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
   term2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
-  result_address = modes[2] == 1 ? arguments[2] : intcode[arguments[2]]
+  result_address = arguments[2]
 
-  intcode[result_address] = 1 if term1 < term2
+  intcode[result_address] = term1 < term2 ? 1 : 0
 end
 
 def equals(intcode:, modes:, arguments:)
   term1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
   term2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
-  result_address = modes[2] == 1 ? arguments[2] : intcode[arguments[2]]
+  result_address = arguments[2]
 
-  intcode[result_address] = 1 if term1 == term2
+  intcode[result_address] = term1 == term2 ? 1 : 0
 end
 
 # Finds which noun and verb will produce given output with given memory state
