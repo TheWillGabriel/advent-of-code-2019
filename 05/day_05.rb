@@ -56,6 +56,7 @@ def multiply(intcode:, modes:, arguments:)
 end
 
 def fetch_input
+  puts 'Enter the ID of the system to test'
   gets.chomp
 end
 
