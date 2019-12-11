@@ -30,9 +30,10 @@ def run_intcode(memory)
                   argument: argument1)
       pointer += 2
     elsif opcode == 5
-      opcode = jump_if_true(intcode: intcode,
-                            mode: mode1,
-                            arguments: [argument1, argument2])
+      pointer = jump_if_true(intcode: intcode,
+                             pointer: pointer,
+                             mode: mode1,
+                             arguments: [argument1, argument2])
     end
   end
 
@@ -63,6 +64,12 @@ end
 def send_output(intcode:, mode:, argument:)
   value = mode == 1 ? argument : intcode[argument]
   puts "Deviance from expected value: #{value}"
+end
+
+def jump_if_true(intcode:, pointer:, mode:, arguments:)
+  jump = !arguments[0].zero?
+  address = mode == 1 ? arguments[1] : intcode[arguments[1]]
+  jump ? address : pointer + 3
 end
 
 # Finds which noun and verb will produce given output with given memory state
