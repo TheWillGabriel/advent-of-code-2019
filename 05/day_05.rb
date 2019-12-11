@@ -45,10 +45,12 @@ def run_intcode(memory)
       less_than(intcode: intcode,
                 modes: [mode1, mode2],
                 arguments: [argument1, argument2, argument3])
+      pointer += 4
     elsif opcode == 8
       equals(intcode: intcode,
              modes: [mode1, mode2],
              arguments: [argument1, argument2, argument3])
+      pointer += 4
     end
   end
 
