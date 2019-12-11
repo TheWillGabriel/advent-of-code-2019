@@ -1,34 +1,38 @@
 def run_intcode(memory)
   intcode = memory.dup
-  opcode_address = 0
+  pointer = 0
 
-  while opcode_address + 1 < intcode.length && intcode[opcode_address] != 99
-    opcode = intcode[opcode_address] % 100
-    mode1 = intcode[opcode_address] / 100 % 10
-    mode2 = intcode[opcode_address] / 1000 % 10
-    mode3 = intcode[opcode_address] / 10_000 % 10
-    argument1 = intcode[opcode_address + 1]
-    argument2 = intcode[opcode_address + 2]
-    argument3 = intcode[opcode_address + 3]
+  while pointer + 1 < intcode.length && intcode[pointer] != 99
+    opcode = intcode[pointer] % 100
+    mode1 = intcode[pointer] / 100 % 10
+    mode2 = intcode[pointer] / 1000 % 10
+    mode3 = intcode[pointer] / 10_000 % 10
+    argument1 = intcode[pointer + 1]
+    argument2 = intcode[pointer + 2]
+    argument3 = intcode[pointer + 3]
 
     if opcode == 1
       add(intcode: intcode,
           modes: [mode1, mode2],
           arguments: [argument1, argument2, argument3])
-      opcode_address += 4
+      pointer += 4
     elsif opcode == 2
       multiply(intcode: intcode,
                modes: [mode1, mode2],
                arguments: [argument1, argument2, argument3])
-      opcode_address += 4
+      pointer += 4
     elsif opcode == 3
       intcode[argument1] = fetch_input
-      opcode_address += 2
+      pointer += 2
     elsif opcode == 4
       send_output(intcode: intcode,
                   mode: mode1,
                   argument: argument1)
-      opcode_address += 2
+      pointer += 2
+    elsif opcode == 5
+      opcode = jump_if_true(intcode: intcode,
+                            mode: mode1,
+                            arguments: [argument1, argument2])
     end
   end
 
