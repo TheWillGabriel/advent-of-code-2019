@@ -39,6 +39,10 @@ def run_intcode(memory)
                               pointer: pointer,
                               mode: mode1,
                               arguments: [argument1, argument2])
+    elsif opcode == 7
+      less_than(intcode: intcode,
+                modes: [mode1, mode2, mode3],
+                arguments: [argument1, argument2, argument3])
     end
   end
 
@@ -49,16 +53,18 @@ end
 def add(intcode:, modes:, arguments:)
   addend1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
   addend2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
-  sum_index = arguments[2]
-  intcode[sum_index] = addend1 + addend2
+  sum_address = arguments[2]
+
+  intcode[sum_address] = addend1 + addend2
 end
 
 # Product parameter will always be in position mode
 def multiply(intcode:, modes:, arguments:)
   factor1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
   factor2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
-  product_index = arguments[2]
-  intcode[product_index] = factor1 * factor2
+  product_address = arguments[2]
+
+  intcode[product_address] = factor1 * factor2
 end
 
 def fetch_input
@@ -74,13 +80,23 @@ end
 def jump_if_true(intcode:, pointer:, mode:, arguments:)
   jump = !arguments[0].zero?
   address = mode == 1 ? arguments[1] : intcode[arguments[1]]
+
   jump ? address : pointer + 3
 end
 
 def jump_if_false(intcode:, pointer:, mode:, arguments:)
   jump = arguments[0].zero?
   address = mode == 1 ? arguments[1] : intcode[arguments[1]]
+
   jump ? address : pointer + 3
+end
+
+def less_than(intcode:, modes:, arguments:)
+  term1 = modes[0] == 1 ? arguments[0] : intcode[arguments[0]]
+  term2 = modes[1] == 1 ? arguments[1] : intcode[arguments[1]]
+  result_address = modes[2] == 1 ? arguments[2] : intcode[arguments[2]]
+
+  intcode[result_address] = 1 if term1 < term2
 end
 
 # Finds which noun and verb will produce given output with given memory state
