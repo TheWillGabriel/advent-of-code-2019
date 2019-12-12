@@ -37,8 +37,8 @@ class OrbitalMap
   def add_orbit(orbited_name, orbiting_name)
     orbited = find_or_create_body(orbited_name)
     orbiting = find_or_create_body(orbiting_name, orbited)
-      orbited.add_orbiting_body(orbiting)
-    end
+    orbited.add_orbiting_body(orbiting)
+  end
 
   def find_or_create_body(name, parent = nil)
     body = find_body(name) || create_body(name, parent)
@@ -67,3 +67,7 @@ class OrbitalMap
     orbits
   end
 end
+
+input = File.read('input.txt').split
+orbital_map = OrbitalMap.new(input)
+puts orbital_map.all_orbits
