@@ -44,4 +44,12 @@ class OrbitalMap
     end
     nil
   end
+
+  def all_orbits
+    orbits = 0
+    @bodies.each do |body|
+      orbits += body.orbits
+    end
+    orbits
+  end
 end
