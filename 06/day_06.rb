@@ -18,3 +18,20 @@ class Body
     @orbited_by << body
   end
 end
+
+# A collection of objects related by orbit to a Center of Mass (COM)
+class OrbitalMap
+  def initialize(map_list)
+    @com = Body.new('COM')
+    build_map(map_list)
+  end
+
+  def build_map(map_list)
+    map_list.each do |orbit|
+      bodies = orbit.split(')')
+      orbited = find_body(bodies[0])
+      orbiting = Body.new(bodies[1], orbited)
+      orbited.add_orbiting_body(orbiting)
+    end
+  end
+end
