@@ -23,8 +23,7 @@ end
 # A collection of objects related by orbit to a Center of Mass (COM)
 class OrbitalMap
   def initialize(map_list)
-    @com = Body.new('COM')
-    @bodies = [@com]
+    @bodies = []
     build_map(map_list)
   end
 
