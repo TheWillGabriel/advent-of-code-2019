@@ -24,6 +24,7 @@ end
 class OrbitalMap
   def initialize(map_list)
     @com = Body.new('COM')
+    @bodies = [@com]
     build_map(map_list)
   end
 
@@ -33,6 +34,7 @@ class OrbitalMap
       orbited = find_body(bodies[0])
       orbiting = Body.new(bodies[1], orbited)
       orbited.add_orbiting_body(orbiting)
+      @bodies << orbiting
     end
   end
 end
