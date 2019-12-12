@@ -36,6 +36,15 @@ class OrbitalMap
       orbited.add_orbiting_body(orbiting)
       @bodies << orbiting
     end
+
+  def find_or_create_body(name)
+    find_body(name) || create_body(name)
+  end
+
+  def create_body(name, parent = nil)
+    body = Body.new(name, parent)
+    @bodies << body
+    body
   end
 
   def find_body(name)
