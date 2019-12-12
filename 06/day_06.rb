@@ -21,6 +21,10 @@ class Body
     @orbiting.transfers_to(parent_body) + 1
   end
 
+  def children
+    @orbited_by.map(&:children).flatten + @orbited_by
+  end
+
   def add_orbiting_body(body)
     @orbited_by << body
   end
@@ -74,6 +78,8 @@ class OrbitalMap
   end
 end
 
-input = File.read('input.txt').split
+input = File.read('example.txt').split
 orbital_map = OrbitalMap.new(input)
 puts orbital_map.all_orbits
+
+p orbital_map.find_body('D').children.map(&:name)
