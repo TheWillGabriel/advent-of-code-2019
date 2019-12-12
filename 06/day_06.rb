@@ -83,7 +83,7 @@ class OrbitalMap
     until parent.children.include?(body2)
       parent = parent.orbiting
       return nil if parent.nil?
-end
+    end
 
     parent
   end
@@ -101,8 +101,6 @@ end
   end
 end
 
-input = File.read('example.txt').split
+input = File.read('input.txt').split
 orbital_map = OrbitalMap.new(input)
-puts orbital_map.all_orbits
-
-p orbital_map.find_body('D').children.map(&:name)
+puts orbital_map.orbital_transfers('YOU', 'SAN')
