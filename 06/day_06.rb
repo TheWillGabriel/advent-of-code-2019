@@ -1,6 +1,7 @@
 # All bodies directly orbit only one other body
 class Body
-  attr_reader :name, :orbiting, :orbited_by
+  attr_accessor :orbiting
+  attr_reader :name, :orbited_by
 
   def initialize(name, orbiting = nil)
     @name = name
