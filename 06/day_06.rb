@@ -11,7 +11,6 @@ class Body
 
   def orbits
     return 0 if @orbiting.nil?
-    return 1 if @orbiting.name == 'COM'
 
     @orbiting.orbits + 1
   end
