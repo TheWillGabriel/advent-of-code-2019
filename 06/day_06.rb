@@ -87,6 +87,18 @@ end
 
     parent
   end
+
+  def orbital_transfers(name1, name2)
+    current_orbit = find_body(name1).orbiting
+    destination_orbit = find_body(name2).orbiting
+    common_parent = nearest_common_parent(current_orbit,
+                                          destination_orbit)
+
+    hops_up = current_orbit.transfers_to(common_parent)
+    hops_down = destination_orbit.transfers_to(common_parent)
+
+    hops_up + hops_down
+  end
 end
 
 input = File.read('example.txt').split
