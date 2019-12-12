@@ -9,7 +9,7 @@ class Body
   end
 
   def orbits
-    return 0 if @orbiting == nil
+    return 0 if @orbiting.nil?
     return 1 if @orbiting.name == 'COM'
 
     @orbiting.orbits + 1
@@ -36,5 +36,12 @@ class OrbitalMap
       orbited.add_orbiting_body(orbiting)
       @bodies << orbiting
     end
+  end
+
+  def find_body(name)
+    @bodies.each do |body|
+      return body if body.name == name
+    end
+    nil
   end
 end
