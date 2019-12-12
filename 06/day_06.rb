@@ -15,6 +15,12 @@ class Body
     @orbiting.orbits + 1
   end
 
+  def transfers_to(parent_body)
+    return 0 if self == parent_body
+
+    @orbiting.transfers_to(parent_body) + 1
+  end
+
   def add_orbiting_body(body)
     @orbited_by << body
   end
