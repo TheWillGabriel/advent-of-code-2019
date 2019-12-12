@@ -76,6 +76,17 @@ class OrbitalMap
     end
     orbits
   end
+
+  def nearest_common_parent(body1, body2)
+    parent = body1.orbiting
+
+    until parent.children.include?(body2)
+      parent = parent.orbiting
+      return nil if parent.nil?
+end
+
+    parent
+  end
 end
 
 input = File.read('example.txt').split
