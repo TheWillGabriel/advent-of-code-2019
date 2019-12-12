@@ -31,8 +31,13 @@ class OrbitalMap
   def build_map(map_list)
     map_list.each do |orbit|
       bodies = orbit.split(')')
-      orbited = find_body(bodies[0])
-      orbiting = Body.new(bodies[1], orbited)
+      add_orbit(bodies[0], bodies[1])
+    end
+  end
+
+  def add_orbit(orbited_name, orbiting_name)
+    orbited = find_or_create_body(orbited_name)
+    orbiting = Body.new(orbiting_name, orbited)
       orbited.add_orbiting_body(orbiting)
       @bodies << orbiting
     end
