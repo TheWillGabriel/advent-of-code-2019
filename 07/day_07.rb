@@ -75,12 +75,13 @@ class Computer
 
     # Pulls next input from the front of input array if any exist
     def fetch_input(mode:, argument:)
+      puts "Inputs: #{@inputs}"
       destination_address = mode == 1 ? argument : @memory[argument]
       if @inputs.empty?
         puts 'Enter the ID of the system to test'
         input = gets.chomp.to_i
       else
-        input = @input.shift
+        input = @inputs.shift
       end
       @memory[destination_address] = input
     end
