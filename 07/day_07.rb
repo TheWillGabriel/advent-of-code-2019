@@ -1,8 +1,11 @@
+# Output modes: :console, :return
 class Computer
-  def initialize(intcode)
+  def initialize(intcode, output_mode = :console)
     @memory = intcode.dup
     @inputs = nil
     @pointer = 0
+    @output_mode = output_mode
+    @output = nil
   end
 
   def run(*args)
@@ -50,10 +53,19 @@ class Computer
       end
     end
 
-    @memory
+    terminate
   end
 
   private
+
+    # Determines what to return when run() is finished
+    def terminate
+      if @output_mode == :console
+        @memory
+      elsif @output_mode == :return
+        @output
+      end
+    end
 
     # Sum parameter will always be in position mode
     def add(modes:, arguments:)
@@ -87,7 +99,11 @@ class Computer
 
     def send_output(mode:, argument:)
       value = mode == 1 ? argument : @memory[argument]
-      puts "Diagnostic code: #{value}"
+      if @output_mode == :console
+        puts "Diagnostic code: #{value}"
+      elsif @output_mode == :return
+        @output = value
+      end
     end
 
     # Returns the new pointer index
