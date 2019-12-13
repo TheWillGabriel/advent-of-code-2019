@@ -1,12 +1,12 @@
 class Computer
   def initialize(intcode)
     @memory = intcode.dup
-    @input = nil
+    @inputs = nil
     @pointer = 0
   end
 
-  def run(input = nil)
-    @input = input
+  def run(inputs = [])
+    @inputs = inputs
 
     while @pointer + 1 < @memory.length && @memory[@pointer] != 99
       opcode = @memory[@pointer] % 100
@@ -73,16 +73,16 @@ class Computer
       @memory[product_address] = factor1 * factor2
     end
 
-    # Uses temporary input variable to allow multiple-input intcodes
+    # Pulls next input from the front of input array if any exist
     def fetch_input(mode:, argument:)
       destination_address = mode == 1 ? argument : @memory[argument]
-      if @input.nil?
+      if @inputs.empty?
         puts 'Enter the ID of the system to test'
-        new_input = gets.chomp.to_i
+        input = gets.chomp.to_i
       else
-        new_input = @input
+        input = @input.shift
       end
-      @memory[destination_address] = new_input
+      @memory[destination_address] = input
     end
 
     def send_output(mode:, argument:)
