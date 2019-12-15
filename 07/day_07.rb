@@ -8,6 +8,7 @@ class Computer
     @output = nil
   end
 
+  # Takes a list of inputs as an argument. Will prompt if none passed.
   def run(*args)
     @inputs = args
 
@@ -139,7 +140,46 @@ class Computer
     end
 end
 
+# Defines parameters for running the computer
+class Controller
+  def initialize(memory, phases = 1, input = 0)
+    @memory = memory
+    @phases = phases
+    @input = input
+  end
+
+  def max_output_signal
+    sequences = phase_sequences
+    outputs = []
+
+    sequences.each do |sequence|
+      outputs << run_sequence(sequence)
+    end
+
+    p outputs
+    outputs.max
+  end
+
+  private
+
+    def run_sequence(sequence)
+      output = @input
+
+      sequence.each do |phase|
+        computer = Computer.new(@memory, :return)
+        output = computer.run(phase, output).to_i
+      end
+
+      output
+    end
+
+    def phase_sequences
+      phase_list = (0..(@phases - 1)).to_a
+      phase_list.permutation.to_a
+    end
+end
+
 intcode = File.read('input.txt').split(',').map(&:to_i)
 
-computer = Computer.new(intcode)
-computer.run
+controller = Controller.new(intcode, 5)
+puts controller.max_output_signal
