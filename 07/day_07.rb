@@ -1,18 +1,22 @@
 # Output modes: :console, :return
 class Computer
-  def initialize(intcode, output_mode = :console)
+  attr_reader :done
+
+  def initialize(intcode, input_mode = :console, output_mode = :console)
     @memory = intcode.dup
     @inputs = nil
     @pointer = 0
+    @input_mode = input_mode
     @output_mode = output_mode
     @output = nil
+    @done = false
   end
 
   # Takes a list of inputs as an argument. Will prompt if none passed.
   def run(*args)
     @inputs = args
 
-    while @pointer + 1 < @memory.length && @memory[@pointer] != 99
+    while @done == false
       opcode = @memory[@pointer] % 100
       mode1 = @memory[@pointer] / 100 % 10
       mode2 = @memory[@pointer] / 1000 % 10
@@ -30,6 +34,9 @@ class Computer
                  arguments: [argument1, argument2, argument3])
         @pointer += 4
       elsif opcode == 3
+        # Pauses computer to await further inputs
+        break if @input_mode == :await && @inputs.nil?
+
         fetch_input(mode: mode1,
                     argument: @pointer + 1)
         @pointer += 2
@@ -52,6 +59,8 @@ class Computer
                arguments: [argument1, argument2, argument3])
         @pointer += 4
       end
+
+      @done = true if @memory[@pointer] == 99 || @pointer + 1 >= @memory.length
     end
 
     terminate
