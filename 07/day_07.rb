@@ -2,11 +2,10 @@
 class Computer
   attr_reader :done
 
-  def initialize(intcode, input_mode = :console, output_mode = :console)
+  def initialize(intcode, output_mode = :console)
     @memory = intcode.dup
     @inputs = nil
     @pointer = 0
-    @input_mode = input_mode
     @output_mode = output_mode
     @output = nil
     @done = false
@@ -34,9 +33,6 @@ class Computer
                  arguments: [argument1, argument2, argument3])
         @pointer += 4
       elsif opcode == 3
-        # Pauses computer to await further inputs
-        break if @input_mode == :await && @inputs.nil?
-
         fetch_input(mode: mode1,
                     argument: @pointer + 1)
         @pointer += 2
@@ -44,6 +40,7 @@ class Computer
         send_output(mode: mode1,
                     argument: argument1)
         @pointer += 2
+        break if @output_mode == :return
       elsif opcode == 5
         @pointer = jump_if_true(modes: [mode1, mode2],
                                 arguments: [argument1, argument2])
@@ -157,33 +154,70 @@ class Controller
     @input = input
   end
 
-  def max_output_signal
-    sequences = phase_sequences
+  def max_signal_single
+    sequences = phase_sequences(0)
     outputs = []
 
     sequences.each do |sequence|
       outputs << run_sequence(sequence)
     end
 
-    p outputs
+    outputs.max
+  end
+
+  def max_signal_feedback
+    sequences = phase_sequences(5)
+    outputs = []
+
+    sequences.each do |sequence|
+      outputs << run_feedback(sequence)
+    end
+
     outputs.max
   end
 
   private
+
+    def run_feedback(sequence)
+      amplifiers = init_amplifiers
+      output = @input
+
+      sequence.each_with_index do |phase, index|
+        output = amplifiers[index].run(phase, output)
+      end
+
+      until amplifiers.last.done
+        amplifiers.each do |amplifier|
+          output = amplifier.run(output)
+        end
+      end
+
+      output
+    end
+
+    def init_amplifiers
+      amplifiers = []
+
+      @phases.times do
+        amplifiers << Computer.new(@memory, :return)
+      end
+
+      amplifiers
+    end
 
     def run_sequence(sequence)
       output = @input
 
       sequence.each do |phase|
         computer = Computer.new(@memory, :return)
-        output = computer.run(phase, output).to_i
+        output = computer.run(phase, output)
       end
 
       output
     end
 
-    def phase_sequences
-      phase_list = (0..(@phases - 1)).to_a
+    def phase_sequences(offset)
+      phase_list = ((offset + 0)..(@phases + offset - 1)).to_a
       phase_list.permutation.to_a
     end
 end
@@ -191,4 +225,4 @@ end
 intcode = File.read('input.txt').split(',').map(&:to_i)
 
 controller = Controller.new(intcode, 5)
-puts controller.max_output_signal
+puts controller.max_signal_feedback
