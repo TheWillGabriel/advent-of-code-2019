@@ -1,3 +1,5 @@
+require 'pry'
+
 # Output modes: :console, :return
 class Computer
   attr_reader :done
@@ -50,7 +52,7 @@ class Computer
       when 8
         equals(**instruction_params)
       end
-  end
+    end
 
     # Determines what to return when run() is finished
     def terminate
@@ -76,10 +78,26 @@ class Computer
       @memory[(@pointer + 1)..(@pointer + 3)]
     end
 
+    # mode 0: Position
+    # mode 1: Immediate
+    # mode 2: Relative
+    def value(address:, mode:)
+      case mode
+      when 0
+        @memory[address]
+      when 1
+        address
+      when 2
+        @memory[@pointer + address]
+      else
+        puts "Warning: invalid mode given for address #{address}"
+      end
+    end
+
     # Sum parameter will always be in position mode
     def add(modes:, arguments:)
-      addend1 = modes[0] == 1 ? arguments[0] : @memory[arguments[0]]
-      addend2 = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
+      addend1 = value(address: arguments[0], mode: modes[0])
+      addend2 = value(address: arguments[1], mode: modes[1])
       sum_address = arguments[2]
 
       @memory[sum_address] = addend1 + addend2
@@ -88,8 +106,8 @@ class Computer
 
     # Product parameter will always be in position mode
     def multiply(modes:, arguments:)
-      factor1 = modes[0] == 1 ? arguments[0] : @memory[arguments[0]]
-      factor2 = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
+      factor1 = value(address: arguments[0], mode: modes[0])
+      factor2 = value(address: arguments[1], mode: modes[1])
       product_address = arguments[2]
 
       @memory[product_address] = factor1 * factor2
@@ -98,7 +116,7 @@ class Computer
 
     # Pulls next input from the front of input array if any exist
     def fetch_input(mode:, argument:)
-      destination_address = mode == 1 ? argument : @memory[argument]
+      destination_address = value(address: argument, mode: mode)
       if @inputs.empty?
         puts 'Enter the ID of the system to test'
         input = gets.chomp.to_i
@@ -110,7 +128,7 @@ class Computer
     end
 
     def send_output(modes:, arguments:)
-      value = modes[0] == 1 ? arguments[0] : @memory[arguments[0]]
+      value = value(address: arguments[0], mode: modes[0])
       if @output_mode == :console
         puts "Diagnostic code: #{value}"
       elsif @output_mode == :return
@@ -122,22 +140,24 @@ class Computer
 
     # Returns the new pointer index
     def jump_if_true(modes:, arguments:)
-      jump = modes[0] == 1 ? !arguments[0].zero? : !@memory[arguments[0]].zero?
-      address = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
+      value = value(address: arguments[0], mode: modes[0])
+      address = value(address: arguments[1], mode: modes[1])
+      jump = !value.zero?
       @pointer = jump ? address : @pointer + 3
     end
 
     # Returns the new pointer index
     def jump_if_false(modes:, arguments:)
-      jump = modes[0] == 1 ? arguments[0].zero? : @memory[arguments[0]].zero?
-      address = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
+      value = value(address: arguments[0], mode: modes[0])
+      address = value(address: arguments[1], mode: modes[1])
+      jump = value.zero?
       @pointer = jump ? address : @pointer + 3
     end
 
     # Result will always be in position mode
     def less_than(modes:, arguments:)
-      term1 = modes[0] == 1 ? arguments[0] : @memory[arguments[0]]
-      term2 = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
+      term1 = value(address: arguments[0], mode: modes[0])
+      term2 = value(address: arguments[1], mode: modes[1])
       result_address = arguments[2]
 
       @memory[result_address] = term1 < term2 ? 1 : 0
@@ -146,11 +166,16 @@ class Computer
 
     # Result will always be in position mode
     def equals(modes:, arguments:)
-      term1 = modes[0] == 1 ? arguments[0] : @memory[arguments[0]]
-      term2 = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
+      term1 = value(address: arguments[0], mode: modes[0])
+      term2 = value(address: arguments[1], mode: modes[1])
       result_address = arguments[2]
 
       @memory[result_address] = term1 == term2 ? 1 : 0
       @pointer += 4
     end
 end
+
+memory = File.read('example.txt').split(',').map(&:to_i)
+
+computer = Computer.new(memory)
+computer.run
