@@ -188,4 +188,4 @@ end
 memory = File.read('input.txt').split(',').map(&:to_i)
 
 computer = Computer.new(memory)
-puts computer.run(1)
+puts computer.run(2)
