@@ -9,47 +9,17 @@ class Computer
     @output_mode = output_mode
     @output = nil
     @done = false
+    @paused = false
   end
 
   # Takes a list of inputs as an argument. Will prompt if none passed.
   def run(*args)
     @inputs = args
+    @paused = false
 
-    while @done == false
+    while @done == false && @paused == false
       opcode = @memory[@pointer] % 100
-
-      if opcode == 1
-        add(modes: parameter_modes,
-            arguments: current_arguments)
-        @pointer += 4
-      elsif opcode == 2
-        multiply(modes: parameter_modes,
-                 arguments: current_arguments)
-        @pointer += 4
-      elsif opcode == 3
-        fetch_input(mode: parameter_modes[0],
-                    argument: current_arguments[0])
-        @pointer += 2
-      elsif opcode == 4
-        send_output(mode: parameter_modes[0],
-                    argument: current_arguments[0])
-        @pointer += 2
-        break if @output_mode == :return
-      elsif opcode == 5
-        @pointer = jump_if_true(modes: parameter_modes,
-                                arguments: current_arguments)
-      elsif opcode == 6
-        @pointer = jump_if_false(modes: parameter_modes,
-                                 arguments: current_arguments)
-      elsif opcode == 7
-        less_than(modes: parameter_modes,
-                  arguments: current_arguments)
-        @pointer += 4
-      elsif opcode == 8
-        equals(modes: parameter_modes,
-               arguments: current_arguments)
-        @pointer += 4
-      end
+      execute(opcode)
 
       @done = true if @memory[@pointer] == 99 || @pointer + 1 >= @memory.length
     end
@@ -58,6 +28,42 @@ class Computer
   end
 
   private
+
+    def execute(opcode)
+      case opcode
+      when 1
+        add(modes: parameter_modes,
+            arguments: current_arguments)
+        @pointer += 4
+      when 2
+        multiply(modes: parameter_modes,
+                 arguments: current_arguments)
+        @pointer += 4
+      when 3
+        fetch_input(mode: parameter_modes[0],
+                    argument: @pointer + 1)
+        @pointer += 2
+      when 4
+        send_output(mode: parameter_modes[0],
+                    argument: current_arguments[0])
+        @pointer += 2
+        @paused = true if @output_mode == :return
+      when 5
+        @pointer = jump_if_true(modes: parameter_modes,
+                                arguments: current_arguments)
+      when 6
+        @pointer = jump_if_false(modes: parameter_modes,
+                                 arguments: current_arguments)
+      when 7
+        less_than(modes: parameter_modes,
+                  arguments: current_arguments)
+        @pointer += 4
+      when 8
+        equals(modes: parameter_modes,
+               arguments: current_arguments)
+        @pointer += 4
+      end
+  end
 
     # Determines what to return when run() is finished
     def terminate
