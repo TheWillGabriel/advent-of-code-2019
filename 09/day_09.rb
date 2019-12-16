@@ -19,7 +19,7 @@ class Computer
 
     while @done == false && @paused == false
       opcode = @memory[@pointer] % 100
-      execute(opcode)
+      run_instruction(opcode)
 
       @done = true if @memory[@pointer] == 99 || @pointer + 1 >= @memory.length
     end
@@ -31,32 +31,24 @@ class Computer
 
     # instruction_params:
     # { modes: parameter_modes, arguments: current_arguments }
-    def execute(opcode)
+    def run_instruction(opcode)
       case opcode
       when 1
         add(**instruction_params)
-        @pointer += 4
       when 2
         multiply(**instruction_params)
-        @pointer += 4
       when 3
-        fetch_input(mode: parameter_modes[0],
-                    argument: @pointer + 1)
-        @pointer += 2
+        fetch_input(mode: parameter_modes[0], argument: @pointer + 1)
       when 4
         send_output(**instruction_params)
-        @pointer += 2
-        @paused = true if @output_mode == :return
       when 5
-        @pointer = jump_if_true(**instruction_params)
+        jump_if_true(**instruction_params)
       when 6
-        @pointer = jump_if_false(**instruction_params)
+        jump_if_false(**instruction_params)
       when 7
         less_than(**instruction_params)
-        @pointer += 4
       when 8
         equals(**instruction_params)
-        @pointer += 4
       end
   end
 
@@ -91,6 +83,7 @@ class Computer
       sum_address = arguments[2]
 
       @memory[sum_address] = addend1 + addend2
+      @pointer += 4
     end
 
     # Product parameter will always be in position mode
@@ -100,6 +93,7 @@ class Computer
       product_address = arguments[2]
 
       @memory[product_address] = factor1 * factor2
+      @pointer += 4
     end
 
     # Pulls next input from the front of input array if any exist
@@ -112,29 +106,32 @@ class Computer
         input = @inputs.shift
       end
       @memory[destination_address] = input
+      @pointer += 2
     end
 
-    def send_output(mode:, argument:)
-      value = mode == 1 ? argument : @memory[argument]
+    def send_output(modes:, arguments:)
+      value = modes[0] == 1 ? arguments[0] : @memory[arguments[0]]
       if @output_mode == :console
         puts "Diagnostic code: #{value}"
       elsif @output_mode == :return
         @output = value
       end
+      @pointer += 2
+      @paused = true if @output_mode == :return
     end
 
     # Returns the new pointer index
     def jump_if_true(modes:, arguments:)
       jump = modes[0] == 1 ? !arguments[0].zero? : !@memory[arguments[0]].zero?
       address = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
-      jump ? address : @pointer + 3
+      @pointer = jump ? address : @pointer + 3
     end
 
     # Returns the new pointer index
     def jump_if_false(modes:, arguments:)
       jump = modes[0] == 1 ? arguments[0].zero? : @memory[arguments[0]].zero?
       address = modes[1] == 1 ? arguments[1] : @memory[arguments[1]]
-      jump ? address : @pointer + 3
+      @pointer = jump ? address : @pointer + 3
     end
 
     # Result will always be in position mode
@@ -144,6 +141,7 @@ class Computer
       result_address = arguments[2]
 
       @memory[result_address] = term1 < term2 ? 1 : 0
+      @pointer += 4
     end
 
     # Result will always be in position mode
@@ -153,5 +151,6 @@ class Computer
       result_address = arguments[2]
 
       @memory[result_address] = term1 == term2 ? 1 : 0
+      @pointer += 4
     end
 end
