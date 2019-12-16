@@ -17,43 +17,37 @@ class Computer
 
     while @done == false
       opcode = @memory[@pointer] % 100
-      mode1 = @memory[@pointer] / 100 % 10
-      mode2 = @memory[@pointer] / 1000 % 10
-      mode3 = @memory[@pointer] / 10_000 % 10
-      argument1 = @memory[@pointer + 1]
-      argument2 = @memory[@pointer + 2]
-      argument3 = @memory[@pointer + 3]
 
       if opcode == 1
-        add(modes: [mode1, mode2],
-            arguments: [argument1, argument2, argument3])
+        add(modes: parameter_modes,
+            arguments: current_arguments)
         @pointer += 4
       elsif opcode == 2
-        multiply(modes: [mode1, mode2],
-                 arguments: [argument1, argument2, argument3])
+        multiply(modes: parameter_modes,
+                 arguments: current_arguments)
         @pointer += 4
       elsif opcode == 3
-        fetch_input(mode: mode1,
-                    argument: @pointer + 1)
+        fetch_input(mode: parameter_modes[0],
+                    argument: current_arguments[0])
         @pointer += 2
       elsif opcode == 4
-        send_output(mode: mode1,
-                    argument: argument1)
+        send_output(mode: parameter_modes[0],
+                    argument: current_arguments[0])
         @pointer += 2
         break if @output_mode == :return
       elsif opcode == 5
-        @pointer = jump_if_true(modes: [mode1, mode2],
-                                arguments: [argument1, argument2])
+        @pointer = jump_if_true(modes: parameter_modes,
+                                arguments: current_arguments)
       elsif opcode == 6
-        @pointer = jump_if_false(modes: [mode1, mode2],
-                                 arguments: [argument1, argument2])
+        @pointer = jump_if_false(modes: parameter_modes,
+                                 arguments: current_arguments)
       elsif opcode == 7
-        less_than(modes: [mode1, mode2],
-                  arguments: [argument1, argument2, argument3])
+        less_than(modes: parameter_modes,
+                  arguments: current_arguments)
         @pointer += 4
       elsif opcode == 8
-        equals(modes: [mode1, mode2],
-               arguments: [argument1, argument2, argument3])
+        equals(modes: parameter_modes,
+               arguments: current_arguments)
         @pointer += 4
       end
 
@@ -72,6 +66,14 @@ class Computer
       elsif @output_mode == :return
         @output
       end
+    end
+
+    def parameter_modes
+      @memory[@pointer].digits
+    end
+
+    def current_arguments
+      @memory[(@pointer + 1)..(@pointer + 3)]
     end
 
     # Sum parameter will always be in position mode
