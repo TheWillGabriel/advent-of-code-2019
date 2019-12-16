@@ -1,5 +1,3 @@
-require 'pry'
-
 # Output modes: :list, :single
 # list: Stores as an array
 # single: Stores a single result then pauses
