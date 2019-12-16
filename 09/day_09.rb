@@ -75,7 +75,10 @@ class Computer
     end
 
     def parameter_modes
-      @memory[@pointer].digits
+      mode1 = @memory[@pointer] / 100 % 10
+      mode2 = @memory[@pointer] / 1000 % 10
+      mode3 = @memory[@pointer] / 10_000 % 10
+      [mode1, mode2, mode3]
     end
 
     def current_arguments
