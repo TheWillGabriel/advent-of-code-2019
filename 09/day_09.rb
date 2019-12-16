@@ -29,38 +29,33 @@ class Computer
 
   private
 
+    # instruction_params:
+    # { modes: parameter_modes, arguments: current_arguments }
     def execute(opcode)
       case opcode
       when 1
-        add(modes: parameter_modes,
-            arguments: current_arguments)
+        add(**instruction_params)
         @pointer += 4
       when 2
-        multiply(modes: parameter_modes,
-                 arguments: current_arguments)
+        multiply(**instruction_params)
         @pointer += 4
       when 3
         fetch_input(mode: parameter_modes[0],
                     argument: @pointer + 1)
         @pointer += 2
       when 4
-        send_output(mode: parameter_modes[0],
-                    argument: current_arguments[0])
+        send_output(**instruction_params)
         @pointer += 2
         @paused = true if @output_mode == :return
       when 5
-        @pointer = jump_if_true(modes: parameter_modes,
-                                arguments: current_arguments)
+        @pointer = jump_if_true(**instruction_params)
       when 6
-        @pointer = jump_if_false(modes: parameter_modes,
-                                 arguments: current_arguments)
+        @pointer = jump_if_false(**instruction_params)
       when 7
-        less_than(modes: parameter_modes,
-                  arguments: current_arguments)
+        less_than(**instruction_params)
         @pointer += 4
       when 8
-        equals(modes: parameter_modes,
-               arguments: current_arguments)
+        equals(**instruction_params)
         @pointer += 4
       end
   end
@@ -72,6 +67,10 @@ class Computer
       elsif @output_mode == :return
         @output
       end
+    end
+
+    def instruction_params
+      { modes: parameter_modes, arguments: current_arguments }
     end
 
     def parameter_modes
