@@ -1,50 +1,68 @@
 class AsteroidMap
+  attr_reader :asteroids
+
   def initialize(input)
-    # map coordinates as (row, column); opposite of (x, y)
-    @map = input
-    # all possible lines of sight for X in (-1..1)
-    @y_angles = -input.length..input.length
-    # all possible lines of sight for Y in (-1..1)
-    @x_angles = -input[0].length..input[0].length
+    @chart = input
+    @asteroids = asteroid_list
   end
 
   def best_location
-    # locations = [] ({:location, :count})
-    # For each coordinate pair
-    # - If coordinate pair == '#'
-    # - - locations << {location: (x,y), count: count_asteroids(x,y)}
+    locations = [] # ({:location, :count})
+    @asteroids.each do |station|
+      locations << { location: station, visible: count_asteroids(station) }
+    end
 
-    # locations.max_by(&:count)
-  end
-
-  def count_asteroids(coordinates)
-    # visible_asteroids = 0
-
-    # THE INSIDE-OUT APPROACH
-    # For each line of sight
-    # - Assign the first LoS coordinate
-    # - While the current LoS coordinate is within the map size
-    # - - (visible_asteroids += 1) && break if (x,y) == '#'
-    # - - Assign the next LoS coordinate
-
-    # THE OUTSIDE-IN APPROACH
-    # For each coordinate pair
-    # - If (x,y) == '#'
-    # - - visible_astroids += 1 if there's no blocking asteroid
-
-    # visible_asteroids
+    locations.max_by { |station| station[:visible] }
   end
 
   private
 
-    def blocked?(space1, space2)
-      # return true if spaces_between(space1, space2).include? '#'
+    # Translates [column, row] into [x, y]
+    def asteroid_list
+      rows = @chart.map.with_index do |row, y_index|
+        asteroids = row.each_index.select do |x_index|
+          row[x_index] == '#'
+        end
+        asteroids.map { |x_index| [x_index, y_index] }
+      end
+      rows.flatten(1)
     end
 
-    def spaces_between(space1, space2)
-      # Return a list of LoS spaces between space1 and space2
+    def count_asteroids(station)
+      visible_asteroids = 0
+
+      @asteroids.each do |asteroid|
+        if asteroid != station &&
+           !blocked?(station[0], station[1], asteroid[0], asteroid[1])
+          visible_asteroids += 1
+        end
+      end
+
+      visible_asteroids
+    end
+
+    # space1 and space2 must be different
+    def blocked?(station_x, station_y, asteroid_x, asteroid_y)
+      x_distance = asteroid_x - station_x
+      y_distance = asteroid_y - station_y
+
+      x_interval = x_distance / x_distance.gcd(y_distance)
+      y_interval = y_distance / x_distance.gcd(y_distance)
+
+      x_next = station_x + x_interval
+      y_next = station_y + y_interval
+
+      until x_next == asteroid_x && y_next == asteroid_y
+        return true if @chart[y_next][x_next] == '#'
+
+        x_next += x_interval
+        y_next += y_interval
+      end
+
+      false
     end
 end
 
 input = File.read('example.txt').split.map { |line| line.split('') }
 map = AsteroidMap.new(input)
+p map.best_location
