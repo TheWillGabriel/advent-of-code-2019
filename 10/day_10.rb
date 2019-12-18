@@ -15,6 +15,19 @@ class AsteroidMap
     locations.max_by { |station| station[:visible] }
   end
 
+  def vaporize
+    vaporized = []
+    angle_groups = asteroid_angles(best_location[:location])
+
+    until vaporized.length == @asteroids.length - 1
+      angle_groups.each_value do |group|
+        vaporized << group.shift unless group.empty?
+      end
+    end
+
+    vaporized
+  end
+
   private
 
     # Translates [column, row] into [x, y]
@@ -42,27 +55,31 @@ class AsteroidMap
     end
 
     def asteroid_angles(station)
-      # Stores angle (degrees) => asteroids ([[x1,y1], [x2,y2], ...])
+      # Stores angle (radians) => asteroids ([[x1,y1], [x2,y2], ...])
       asteroid_groups = {}
 
       @asteroids.each do |asteroid|
+        next if asteroid == station
+
         angle = asteroid_angle(station, asteroid)
         asteroid_groups[angle] ||= []
         asteroid_groups[angle] << asteroid
       end
 
       sort_by_distance!(station, asteroid_groups)
+
+      # Return hash sorted by angle
+      asteroid_groups.sort.to_h
     end
 
-    # Rounded to nearest degree to avoid possible floating point errors
+    # Angle in radians
     def asteroid_angle(station, asteroid)
-      radians = Math.atan2(asteroid[0] - station[0],
-                           -(asteroid[1] - station[1])) % (2 * Math::PI)
-      (radians * 180 / Math::PI).round
+      Math.atan2(asteroid[0] - station[0],
+                 -(asteroid[1] - station[1])) % (2 * Math::PI)
     end
 
     def sort_by_distance!(station, asteroid_groups)
-      asteroid_groups.each do |group|
+      asteroid_groups.each_value do |group|
         group.sort_by! do |asteroid|
           (asteroid[0] - station[0]).abs + (asteroid[1] - station[1]).abs
         end
@@ -93,4 +110,4 @@ end
 
 input = File.read('input.txt').split.map { |line| line.split('') }
 map = AsteroidMap.new(input)
-p map.best_location
+p map.vaporize[199]
