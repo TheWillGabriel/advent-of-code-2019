@@ -41,6 +41,34 @@ class AsteroidMap
       visible_asteroids
     end
 
+    def asteroid_angles(station)
+      # Stores angle (degrees) => asteroids ([[x1,y1], [x2,y2], ...])
+      asteroid_groups = {}
+
+      @asteroids.each do |asteroid|
+        angle = asteroid_angle(station, asteroid)
+        asteroid_groups[angle] ||= []
+        asteroid_groups[angle] << asteroid
+      end
+
+      sort_by_distance!(station, asteroid_groups)
+    end
+
+    # Rounded to nearest degree to avoid possible floating point errors
+    def asteroid_angle(station, asteroid)
+      radians = Math.atan2(asteroid[0] - station[0],
+                           -(asteroid[1] - station[1])) % (2 * Math::PI)
+      (radians * 180 / Math::PI).round
+    end
+
+    def sort_by_distance!(station, asteroid_groups)
+      asteroid_groups.each do |group|
+        group.sort_by! do |asteroid|
+          (asteroid[0] - station[0]).abs + (asteroid[1] - station[1]).abs
+        end
+      end
+    end
+
     # space1 and space2 must be different
     def blocked?(station_x, station_y, asteroid_x, asteroid_y)
       x_distance = asteroid_x - station_x
@@ -63,6 +91,6 @@ class AsteroidMap
     end
 end
 
-input = File.read('example.txt').split.map { |line| line.split('') }
+input = File.read('input.txt').split.map { |line| line.split('') }
 map = AsteroidMap.new(input)
 p map.best_location
