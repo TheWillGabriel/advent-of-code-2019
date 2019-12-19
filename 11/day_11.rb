@@ -1,5 +1,4 @@
-# list: Stores as an array
-# single: Stores a single result then pauses
+# Pauses execution if awaiting an input
 class Computer
   attr_reader :done
 
@@ -9,13 +8,13 @@ class Computer
     @pointer = 0
     @relative_base = 0
     @outputs = []
-    @done = false
-    @paused = false
+    @done = false # Program reached opcode 99
+    @paused = false # Program awaiting input
   end
 
   # Takes a list of inputs as an argument. Will prompt if none passed.
   def run(*args)
-    @inputs = args
+    @inputs = args.flatten
     @outputs = []
     @paused = false
 
@@ -179,7 +178,16 @@ class Computer
     end
 end
 
+# Controller for hull painting robot
+class PaintingRobot
+  def initialize(memory)
+    @computer = Computer.new(memory)
+    @canvas = {} # Stores painted coordinates as { '<x>,<y>' => :<color> }
+    @position = [0, 0]
+    @direction = :north
+  end
+end
+
 memory = File.read('example.txt').split(',').map(&:to_i)
 
-computer = Computer.new(memory)
-puts computer.run(2)
+robot = PaintingRobot.new(memory)
