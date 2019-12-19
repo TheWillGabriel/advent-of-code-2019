@@ -189,11 +189,25 @@ class PaintingRobot
             south: [0, 1],
             west: [-1, 0] }.freeze
 
-  def initialize(memory)
+  def initialize(memory, starting_color)
     @computer = Computer.new(memory)
-    @canvas = {} # Stores painted coordinates as { '<x>,<y>' => :<color> }
+    @canvas = { '0,0' => starting_color }
     @position = [0, 0]
     @direction = :north
+  end
+
+  def run
+    until @computer.done
+      coordinates = to_coordinates(@position)
+      output = if @canvas[coordinates].nil?
+                 0
+               else
+                 COLORS.index(@canvas[coordinates])
+               end
+      input = @computer.run(output)
+      paint(input[0])
+      move(input[1])
+    end
   end
 
   private
@@ -251,6 +265,8 @@ class PaintingRobot
     end
 end
 
-memory = File.read('example.txt').split(',').map(&:to_i)
+memory = File.read('input.txt').split(',').map(&:to_i)
 
-robot = PaintingRobot.new(memory)
+robot = PaintingRobot.new(memory, :black)
+robot.run
+puts robot.canvas.length
