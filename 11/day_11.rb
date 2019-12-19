@@ -180,6 +180,8 @@ end
 
 # Controller for hull painting robot; uses left-handed coordinates.
 class PaintingRobot
+  attr_reader :canvas
+
   COLORS = %i[black white].freeze
   DIRECTIONS = %i[north east south west].freeze
   MOVES = { north: [0, -1],
@@ -195,6 +197,27 @@ class PaintingRobot
   end
 
   private
+
+    def render
+      x_coordinates = @canvas.keys.map { |coords| coords.split(',')[0].to_i }
+      y_coordinates = @canvas.keys.map { |coords| coords.split(',')[1].to_i }
+      offset = [x_coordinates.min, y_coordinates.min]
+      width = x_coordinates.max - x_coordinates.min + 1
+      height = y_coordinates.max - y_coordinates.min + 1
+      grid = Array.new(width) { Array.new(height, '.') }
+      add_white(grid, offset)
+    end
+
+    # Takes a generated grid and marks white coordinates
+    def add_white(grid, offset)
+      @canvas.each do |coordinates, color|
+        if color == :white
+          position = to_position(coordinates)
+          grid[position[0] - offset[0]][position[1] - offset[1]] = '#'
+        end
+      end
+      grid
+    end
 
     def paint(color_code)
       coordinates = to_coordinates(@position)
