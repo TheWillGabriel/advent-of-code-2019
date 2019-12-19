@@ -1,3 +1,5 @@
+require 'colorize'
+
 # Pauses execution if awaiting an input
 class Computer
   attr_reader :done
@@ -182,6 +184,8 @@ end
 class PaintingRobot
   attr_reader :canvas
 
+  WHITE = '  '.colorize(background: :white)
+  BLACK = '  '.colorize(background: :black)
   COLORS = %i[black white].freeze
   DIRECTIONS = %i[north east south west].freeze
   MOVES = { north: [0, -1],
@@ -210,6 +214,15 @@ class PaintingRobot
     end
   end
 
+  def pretty_print
+    output = render.map do |row|
+      row.map do |space|
+        space == '#' ? WHITE : BLACK
+      end.join
+    end
+    output
+  end
+
   private
 
     def render
@@ -220,6 +233,7 @@ class PaintingRobot
       height = y_coordinates.max - y_coordinates.min + 1
       grid = Array.new(width) { Array.new(height, '.') }
       add_white(grid, offset)
+      grid.transpose
     end
 
     # Takes a generated grid and marks white coordinates
@@ -267,6 +281,6 @@ end
 
 memory = File.read('input.txt').split(',').map(&:to_i)
 
-robot = PaintingRobot.new(memory, :black)
+robot = PaintingRobot.new(memory, :white)
 robot.run
-puts robot.canvas.length
+puts robot.pretty_print
