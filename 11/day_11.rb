@@ -178,14 +178,54 @@ class Computer
     end
 end
 
-# Controller for hull painting robot
+# Controller for hull painting robot; uses left-handed coordinates.
 class PaintingRobot
+  COLORS = %i[black white].freeze
+  DIRECTIONS = %i[north east south west].freeze
+  MOVES = { north: [0, -1],
+            east: [1, 0],
+            south: [0, 1],
+            west: [-1, 0] }.freeze
+
   def initialize(memory)
     @computer = Computer.new(memory)
     @canvas = {} # Stores painted coordinates as { '<x>,<y>' => :<color> }
     @position = [0, 0]
     @direction = :north
   end
+
+  private
+
+    def paint(color_code)
+      coordinates = to_coordinates(@position)
+      color = COLORS[color_code]
+      @canvas[coordinates] = color
+    end
+
+    # robot always moves forward one panel after it turns
+    def move(direction_code)
+      turn(direction_code)
+      @position = [@position[0] + MOVES[@direction][0],
+                   @position[1] + MOVES[@direction][1]]
+    end
+
+    # direction codes: 0 == left, 1 == right
+    def turn(direction_code)
+      current_index = DIRECTIONS.index(@direction)
+      @direction = if direction_code.zero?
+                     DIRECTIONS[current_index - 1]
+                   elsif direction_code == 1
+                     DIRECTIONS[(current_index + 1) % 4]
+                   end
+    end
+
+    def to_coordinates(position)
+      "#{position[0]},#{position[1]}"
+    end
+
+    def to_position(coordinates)
+      coordinates.split(',').map(&:to_i)
+    end
 end
 
 memory = File.read('example.txt').split(',').map(&:to_i)
