@@ -32,6 +32,20 @@ class Body
 
   private
 
+    # influence: axis-position of influencing body
+    def set_velocity(axis, influences)
+      starting_position = @position[axis]
+      acceleration = 0
+      influences.each do |influence|
+        acceleration = if starting_position < influence
+                         acceleration + 1
+                       elsif starting_position > influence
+                         acceleration - 1
+                       end
+      end
+      @velocity[axis] += acceleration
+    end
+
     def parse_position(position_string)
       position_array = position_string[1..-2].split(', ').map do |axis|
         axis.split('=')
