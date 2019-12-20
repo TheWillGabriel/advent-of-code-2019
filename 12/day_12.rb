@@ -7,6 +7,31 @@ class System
 
   private
 
+    def accelerate_bodies
+      reference_bodies = body_positions
+      @bodies.each do |body|
+        %i[x y z].each do |axis|
+          accelerate_body_axis(axis, body, reference_bodies)
+        end
+      end
+    end
+
+    def accelerate_axis(axis, body, reference_bodies)
+      references = []
+      reference_bodies.each do |reference_body|
+        next if position[:body] == body
+
+        references << reference_body.position[axis]
+      end
+      body.set_velocity(axis, references)
+    end
+
+    def body_positions
+      @bodies.map do |body|
+        { body: body, position: @body.position }
+      end
+    end
+
     def generate_bodies(input)
       input.split("\n").map do |position|
         Body.new(position)
@@ -32,14 +57,14 @@ class Body
 
   private
 
-    # influence: axis-position of influencing body
-    def set_velocity(axis, influences)
+    # reference: axis-position of influencing body
+    def set_velocity(axis, references)
       starting_position = @position[axis]
       acceleration = 0
-      influences.each do |influence|
-        acceleration = if starting_position < influence
+      references.each do |reference|
+        acceleration = if starting_position < reference
                          acceleration + 1
-                       elsif starting_position > influence
+                       elsif starting_position > reference
                          acceleration - 1
                        end
       end
