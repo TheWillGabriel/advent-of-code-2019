@@ -20,6 +20,14 @@ class Body
 
   def initialize(position_string)
     @position = parse_position(position_string)
+    @velocity = { x: 0, y: 0, z: 0 }
+  end
+
+  def state
+    "pos=#{@position}, vel=#{@velocity}".gsub('{', '<')
+                                        .gsub('}', '>')
+                                        .gsub(':', '')
+                                        .gsub('=>', '=')
   end
 
   private
@@ -28,7 +36,7 @@ class Body
       position_array = position_string[1..-2].split(', ').map do |axis|
         axis.split('=')
       end
-      position_array.to_h.transform_keys(&:to_sym)
+      position_array.to_h.transform_keys(&:to_sym).transform_values(&:to_i)
     end
 end
 
@@ -37,5 +45,5 @@ input = File.read('example.txt')
 system = System.new(input)
 
 system.bodies.each do |body|
-  puts body.position
+  puts body.state
 end
