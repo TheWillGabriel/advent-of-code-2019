@@ -91,7 +91,23 @@ class Body
     end
   end
 
+  def total_energy
+    potential_energy * kinetic_energy
+  end
+
   private
+
+    def potential_energy
+      @position.values.reduce(0) do |a, b|
+        a.abs + b.abs
+      end
+    end
+
+    def kinetic_energy
+      @velocity.values.reduce(0) do |a, b|
+        a.abs + b.abs
+      end
+    end
 
     def parse_position(position_string)
       position_array = position_string[1..-2].split(', ').map do |axis|
