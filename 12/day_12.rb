@@ -5,7 +5,18 @@ class System
     @bodies = generate_bodies(input)
   end
 
+  def simulate(steps = 1)
+    steps.times do
+      accelerate_bodies
+      move_bodies
+    end
+  end
+
   private
+
+    def move_bodies
+      @bodies.each(&:move)
+    end
 
     def accelerate_bodies
       reference_bodies = body_positions
