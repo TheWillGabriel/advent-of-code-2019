@@ -11,12 +11,12 @@ class System
       reference_bodies = body_positions
       @bodies.each do |body|
         %i[x y z].each do |axis|
-          accelerate_body_axis(axis, body, reference_bodies)
+          accelerate_body_axis(body, axis, reference_bodies)
         end
       end
     end
 
-    def accelerate_axis(axis, body, reference_bodies)
+    def accelerate_body_axis(body, axis, reference_bodies)
       references = []
       reference_bodies.each do |reference_body|
         next if position[:body] == body
@@ -55,21 +55,28 @@ class Body
                                         .gsub('=>', '=')
   end
 
-  private
-
-    # reference: axis-position of influencing body
-    def set_velocity(axis, references)
-      starting_position = @position[axis]
-      acceleration = 0
-      references.each do |reference|
-        acceleration = if starting_position < reference
-                         acceleration + 1
-                       elsif starting_position > reference
-                         acceleration - 1
-                       end
-      end
-      @velocity[axis] += acceleration
+  # reference: axis-position of influencing body
+  def set_velocity(axis, references)
+    starting_position = @position[axis]
+    acceleration = 0
+    references.each do |reference|
+      acceleration = if starting_position < reference
+                       acceleration + 1
+                     elsif starting_position > reference
+                       acceleration - 1
+                     end
     end
+    @velocity[axis] += acceleration
+  end
+
+  # Only call once per step; velocity will be affected by system gravity
+  def move
+    @position.each_key do |axis|
+      @position[axis] += @velocity[axis]
+    end
+  end
+
+  private
 
     def parse_position(position_string)
       position_array = position_string[1..-2].split(', ').map do |axis|
