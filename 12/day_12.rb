@@ -16,6 +16,10 @@ class System
     @bodies.map(&:state)
   end
 
+  def total_energy
+    @bodies.map(&:total_energy).reduce(:+)
+  end
+
   private
 
     def move_bodies
@@ -117,12 +121,13 @@ class Body
     end
 end
 
-input = File.read('example.txt')
+input = File.read('input.txt')
 
 system = System.new(input)
 
 puts system.state
 
-system.simulate(10)
+system.simulate(1000)
 puts
 puts system.state
+puts system.total_energy
