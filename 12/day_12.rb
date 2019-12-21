@@ -12,6 +12,10 @@ class System
     end
   end
 
+  def state
+    @bodies.map(&:state)
+  end
+
   private
 
     def move_bodies
@@ -71,11 +75,11 @@ class Body
     starting_position = @position[axis]
     acceleration = 0
     references.each do |reference|
-      acceleration = if starting_position < reference
-                       acceleration + 1
-                     elsif starting_position > reference
-                       acceleration - 1
-                     end
+      if starting_position < reference
+        acceleration += 1
+      elsif starting_position > reference
+        acceleration -= 1
+      end
     end
     @velocity[axis] += acceleration
   end
@@ -101,14 +105,8 @@ input = File.read('example.txt')
 
 system = System.new(input)
 
-system.bodies.each do |body|
-  puts body.state
-end
+puts system.state
 
-system.simulate(1)
-
+system.simulate(10)
 puts
-
-system.bodies.each do |body|
-  puts body.state
-end
+puts system.state
