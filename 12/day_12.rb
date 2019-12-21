@@ -30,16 +30,16 @@ class System
     def accelerate_body_axis(body, axis, reference_bodies)
       references = []
       reference_bodies.each do |reference_body|
-        next if position[:body] == body
+        next if reference_body[:body] == body
 
-        references << reference_body.position[axis]
+        references << reference_body[:position][axis]
       end
       body.set_velocity(axis, references)
     end
 
     def body_positions
       @bodies.map do |body|
-        { body: body, position: @body.position }
+        { body: body, position: body.position }
       end
     end
 
@@ -100,6 +100,14 @@ end
 input = File.read('example.txt')
 
 system = System.new(input)
+
+system.bodies.each do |body|
+  puts body.state
+end
+
+system.simulate(1)
+
+puts
 
 system.bodies.each do |body|
   puts body.state
