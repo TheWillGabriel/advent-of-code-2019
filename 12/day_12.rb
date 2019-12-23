@@ -13,11 +13,22 @@ class System
   end
 
   def state
-    @bodies.map(&:state)
+    @bodies.map(&:state).join("\n")
   end
 
   def total_energy
     @bodies.map(&:total_energy).reduce(:+)
+  end
+
+  # Returns the number of steps until system returns to original state
+  def steps_to_repeat
+    simulate
+    steps = 1
+    until @bodies.map(&:velocity).map(&:values).flatten.all?(&:zero?)
+      simulate
+      steps += 1
+    end
+    steps * 2
   end
 
   private
@@ -60,7 +71,7 @@ end
 
 # Stores Body instance variables and individual methods
 class Body
-  attr_accessor :position
+  attr_accessor :position, :velocity
 
   def initialize(position_string)
     @position = parse_position(position_string)
@@ -68,10 +79,7 @@ class Body
   end
 
   def state
-    "pos=#{@position}, vel=#{@velocity}".gsub('{', '<')
-                                        .gsub('}', '>')
-                                        .gsub(':', '')
-                                        .gsub('=>', '=')
+    "pos: #{@position}, vel: #{@velocity}"
   end
 
   # reference: axis-position of influencing body
@@ -121,13 +129,8 @@ class Body
     end
 end
 
-input = File.read('input.txt')
+input = File.read('example.txt')
 
 system = System.new(input)
 
-puts system.state
-
-system.simulate(1000)
-puts
-puts system.state
-puts system.total_energy
+puts system.steps_to_repeat
