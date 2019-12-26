@@ -22,13 +22,14 @@ class System
 
   # Returns the number of steps until system returns to original state
   def steps_to_repeat
-    simulate
-    steps = 1
-    until @bodies.map(&:velocity).map(&:values).flatten.all?(&:zero?)
-      simulate
-      steps += 1
+    positions = body_positions
+    periods = %i[x y z].map do |axis|
+      axis_period(axis, positions[:position][axis])
     end
-    steps * 2
+    x_period = periods[0]
+    y_period = periods[1]
+    z_period = periods[2]
+    x_period.lcm(y_period.lcm(z_period))
   end
 
   private
