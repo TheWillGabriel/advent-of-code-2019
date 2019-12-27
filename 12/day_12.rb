@@ -39,6 +39,20 @@ class System
 
   private
 
+    def axis_period(axis)
+      reset
+      start_positions = axis_positions(axis)
+      start_velocities = axis_velocities(axis)
+      simulate
+      count = 1
+      until axis_positions(axis) == start_positions &&
+            axis_velocities(axis) == start_velocities
+        simulate
+        count += 1
+      end
+      count
+    end
+
     def move_bodies
       @bodies.each(&:move)
     end
