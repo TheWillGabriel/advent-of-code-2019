@@ -68,6 +68,18 @@ class System
       end
     end
 
+    def axis_positions(axis)
+      @bodies.map do |body|
+        body.position[axis]
+      end
+    end
+
+    def axis_velocities(axis)
+      @bodies.map do |body|
+        body.velocity[axis]
+      end
+    end
+
     def generate_bodies(input)
       input.split("\n").map do |position|
         Body.new(position)
