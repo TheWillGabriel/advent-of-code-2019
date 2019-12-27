@@ -3,7 +3,7 @@ class System
   attr_accessor :bodies
   def initialize(input)
     @bodies = generate_bodies(input)
-    @initial_state = @bodies.dup
+    @input = input
   end
 
   def simulate(steps = 1)
@@ -14,7 +14,7 @@ class System
   end
 
   def reset
-    @bodies = @initial_state.dup
+    @bodies = generate_bodies(@input)
   end
 
   def state
