@@ -27,14 +27,10 @@ class System
 
   # Returns the number of steps until system returns to original state
   def steps_to_repeat
-    positions = body_positions
     periods = %i[x y z].map do |axis|
-      axis_period(axis, positions[:position][axis])
+      axis_period(axis)
     end
-    x_period = periods[0]
-    y_period = periods[1]
-    z_period = periods[2]
-    x_period.lcm(y_period.lcm(z_period))
+    periods.reduce(:lcm)
   end
 
   private
@@ -161,7 +157,7 @@ class Body
     end
 end
 
-input = File.read('example.txt')
+input = File.read('input.txt')
 
 system = System.new(input)
 
