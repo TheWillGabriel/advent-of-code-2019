@@ -3,6 +3,7 @@ class System
   attr_accessor :bodies
   def initialize(input)
     @bodies = generate_bodies(input)
+    @initial_state = @bodies.dup
   end
 
   def simulate(steps = 1)
@@ -10,6 +11,10 @@ class System
       accelerate_bodies
       move_bodies
     end
+  end
+
+  def reset
+    @bodies = @initial_state.dup
   end
 
   def state
